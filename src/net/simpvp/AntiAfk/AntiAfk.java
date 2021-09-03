@@ -82,6 +82,4 @@ public class AntiAfk extends JavaPlugin implements Listener {
 	public static ArrayList<Player> getAfkPlayers() {
 		return afkPlayers;
 	}
-	
-	
 }
