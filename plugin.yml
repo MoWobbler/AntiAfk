@@ -1,0 +1,5 @@
+name: AntiAfk
+main: net.simpvp.AntiAfk.AntiAfk
+version: 1
+api-version: 1.14
+commands:
