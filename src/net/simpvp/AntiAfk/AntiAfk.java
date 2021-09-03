@@ -56,7 +56,7 @@ public class AntiAfk extends JavaPlugin implements Listener {
             		p.kickPlayer("Kicked for being afk during low tps");
             	}
             }
-        }, 0, 20);
+        }, 0, 100);
     }
 	
 	@EventHandler
