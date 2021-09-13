@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 
 public class GetTps {
 
-	private final String name = Bukkit.getServer().getClass().getPackage().getName();
+    private final String name = Bukkit.getServer().getClass().getPackage().getName();
     private final String version = name.substring(name.lastIndexOf('.') + 1);
 
     private final DecimalFormat format = new DecimalFormat("##.##");
@@ -44,7 +44,5 @@ public class GetTps {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-    }
-	
-	
+    }	
 }
