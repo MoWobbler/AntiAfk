@@ -14,6 +14,8 @@ public class KickPlayer {
 		if (System.currentTimeMillis() < (1 * 60 * 1000) + last_request) {
 			return;
 		}
+		
+		last_request = System.currentTimeMillis();
 
 		for (Player p : GetAfkPlayers.afkPlayers) {
 			p.sendMessage(ChatColor.RED + "You are about to be kicked for being afk. Please move.");
@@ -25,7 +27,6 @@ public class KickPlayer {
 		 		for (Player p : GetAfkPlayers.afkPlayers) {
 					p.kickPlayer(ChatColor.RED + "Kicked for being afk in low tps.");
 				}
-		 		last_request = System.currentTimeMillis();
 		          cancel();
 		     }
 		}.runTaskTimer(AntiAfk.instance, 400, 1);
