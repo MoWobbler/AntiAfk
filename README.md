@@ -1,6 +1,6 @@
 # AntiAfk
 
-Not done yet
+Not done yet, help wanted
 
 To do:
   - Basic testing. Right now I get a warning when players are kicked
