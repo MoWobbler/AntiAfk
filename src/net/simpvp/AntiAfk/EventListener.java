@@ -35,8 +35,6 @@ public class EventListener implements Listener {
 	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent e) {
-		System.out.println(AntiAfk.kick_players);
-		System.out.println(e.getPlayer().getUniqueId());
 		if (AntiAfk.kick_players.contains(e.getPlayer().getUniqueId())) {
 			GetAfkPlayers.playerLastMoveTime.put(e.getPlayer(), System.currentTimeMillis());
 		}
