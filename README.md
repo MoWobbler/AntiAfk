@@ -3,9 +3,11 @@
 Not done yet, help wanted
 
 To do:
-  - Basic testing. Right now I get a warning when players are kicked
+  - Basic testing. Right now I get an exception when players are kicked
   - Optimization
   - Prevent players from bypassing with a water pool?
+  - Change the timings around
+  - remove "You are now afk" messages
   
 Config options:
   - Minimum_tps: Afk players will only be kicked if tps is less than this value
