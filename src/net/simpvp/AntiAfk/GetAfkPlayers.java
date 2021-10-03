@@ -34,16 +34,9 @@ public abstract class GetAfkPlayers implements Plugin {
                 playerLastMoveTime.remove(playerToRemove);
             }
             // Kick all afk players if tps is lower than the tps set in the config
-            if (Double.parseDouble(AntiAfk.gettps.getTPS(0)) < AntiAfk.min_tps) {
-            	for (Player p : getAfkPlayers()) {
-            		p.kickPlayer("Kicked for being afk during low tps");
-            	}
+            if (Double.parseDouble(AntiAfk.gettps.getTPS(0)) < AntiAfk.min_tps && !afkPlayers.isEmpty()) {
+            	KickPlayer.online_check();
             }
         }, 0, 100);
     }
-    
-	public static ArrayList<Player> getAfkPlayers() {
-		return afkPlayers;
-	}
-	
 }
