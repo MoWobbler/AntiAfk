@@ -1,6 +1,6 @@
 # AntiAfk
 
-Not done yet, help wanted
+Not done yet
 
 To do:
   - Basic testing. Right now I get an exception when players are kicked
