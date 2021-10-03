@@ -7,7 +7,8 @@ To do:
   - Optimization
   - Prevent players from bypassing with a water pool?
   - Change the timings around
-  - remove "You are now afk" messages
+  - Remove "You are now afk" messages
+  - Log more stuff
   
 Config options:
   - Minimum_tps: Afk players will only be kicked if tps is less than this value
