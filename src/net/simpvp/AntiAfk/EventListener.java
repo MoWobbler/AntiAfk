@@ -18,7 +18,10 @@ public class EventListener implements Listener {
 		    GetAfkPlayers.playerLastMoveTime.put(e.getPlayer(), System.currentTimeMillis());
 		    if (GetAfkPlayers.afkPlayers.contains(e.getPlayer())) {
 		    	GetAfkPlayers.afkPlayers.remove(e.getPlayer());
-		    	e.getPlayer().sendMessage(ChatColor.GREEN + "You are no longer now afk");
+		    	if (AntiAfk.afk_message == true) {
+		    		e.getPlayer().sendMessage(ChatColor.GREEN + "You are no longer afk");
+		    	}
+		    	e.getPlayer().resetTitle();
 		    }
 		}
 	}
@@ -40,8 +43,8 @@ public class EventListener implements Listener {
 		}
 	}
 	
-	// Remove player from both arrays
-	private void remove(Player p) {
+	/* Remove player from both arrays */
+	public static void remove(Player p) {
 	    if ( GetAfkPlayers.playerLastMoveTime.containsKey(p)) {
 	    	GetAfkPlayers.playerLastMoveTime.remove(p);
 	    }
