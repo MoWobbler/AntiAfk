@@ -30,5 +30,8 @@ public class AntiAfk extends JavaPlugin {
 		gettps.variables();	
 		GetAfkPlayers.setPlayersAfk();
 		getServer().getPluginManager().registerEvents(new EventListener(), this);
+		OnlineCheck oc_instance = new OnlineCheck();
+		getCommand("checkonline").setExecutor(oc_instance);
+		getCommand("on").setExecutor(oc_instance);
 	}
 }
