@@ -3,4 +3,3 @@ Afk_seconds: 120
 Online_check_seconds: 180
 Scheduler_check_seconds: 60
 Kick_players: []
-Afk_message: true
