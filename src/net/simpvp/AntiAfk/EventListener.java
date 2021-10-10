@@ -5,27 +5,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-
-import net.md_5.bungee.api.ChatColor;
 
 public class EventListener implements Listener {
 
-	@EventHandler
-	public void onPlayerMove(PlayerMoveEvent e) {
-		if (AntiAfk.kick_players.contains(e.getPlayer().getUniqueId())) {
-		    GetAfkPlayers.playerLastMoveTime.put(e.getPlayer(), System.currentTimeMillis());
-		    if (GetAfkPlayers.afkPlayers.contains(e.getPlayer())) {
-		    	GetAfkPlayers.afkPlayers.remove(e.getPlayer());
-		    	if (AntiAfk.afk_message == true) {
-		    		e.getPlayer().sendMessage(ChatColor.GREEN + "You are no longer afk");
-		    	}
-		    	e.getPlayer().resetTitle();
-		    }
-		}
-	}
-	
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent e) {
 	    remove(e.getPlayer());
@@ -40,6 +23,7 @@ public class EventListener implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent e) {
 		if (AntiAfk.kick_players.contains(e.getPlayer().getUniqueId())) {
 			GetAfkPlayers.playerLastMoveTime.put(e.getPlayer(), System.currentTimeMillis());
+			GetAfkPlayers.playerLastLocation.put(e.getPlayer(), e.getPlayer().getLocation());
 		}
 	}
 	
@@ -50,6 +34,9 @@ public class EventListener implements Listener {
 	    }
 	    if ( GetAfkPlayers.afkPlayers.contains(p)) {
 	    	GetAfkPlayers.afkPlayers.remove(p);
+	    }
+	    if ( GetAfkPlayers.playerLastLocation.containsKey(p)) {
+	    	GetAfkPlayers.playerLastLocation.remove(p);
 	    }
 	}
 	
