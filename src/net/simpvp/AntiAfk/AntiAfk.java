@@ -15,7 +15,6 @@ public class AntiAfk extends JavaPlugin {
 	static Integer online_check_seconds;
 	static Integer scheduler_seconds;
 	static List<?> kick_players;
-	static Boolean afk_message;
 	
 	@Override
 	public void onEnable() {
@@ -26,12 +25,12 @@ public class AntiAfk extends JavaPlugin {
 		online_check_seconds = AntiAfk.instance.getConfig().getInt("Online_check_seconds");
 		scheduler_seconds = AntiAfk.instance.getConfig().getInt("Scheduler_check_seconds");
 		kick_players = AntiAfk.instance.getConfig().getStringList("Kick_players").stream().map(UUID::fromString).collect(java.util.stream.Collectors.toList());
-		afk_message = AntiAfk.instance.getConfig().getBoolean("Afk_message");
 		gettps.variables();	
 		GetAfkPlayers.setPlayersAfk();
 		getServer().getPluginManager().registerEvents(new EventListener(), this);
 		OnlineCheck oc_instance = new OnlineCheck();
 		getCommand("checkonline").setExecutor(oc_instance);
 		getCommand("on").setExecutor(oc_instance);
+		getCommand("afk").setExecutor(new KickPlayer());
 	}
 }
