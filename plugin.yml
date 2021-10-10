@@ -7,3 +7,5 @@ commands:
     description: Kick afk players
   "on":
     description: Verify that you are not afk
+  "afk":
+    description: Verify that you are not afk
