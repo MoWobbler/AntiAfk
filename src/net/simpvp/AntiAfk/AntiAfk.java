@@ -15,6 +15,7 @@ public class AntiAfk extends JavaPlugin {
 	static Integer online_check_seconds;
 	static Integer scheduler_seconds;
 	static List<?> kick_players;
+	static Boolean afk_message;
 	
 	@Override
 	public void onEnable() {
