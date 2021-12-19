@@ -50,7 +50,7 @@ public abstract class GetAfkPlayers implements Plugin {
          		for (Iterator<?> afkListIterator = AntiAfk.instance.getServer().getOnlinePlayers().iterator(); afkListIterator.hasNext();) {
          			p = (Player) afkListIterator.next();
          			if (GetAfkPlayers.isAfk(p)) {
-         				KickPlayer.afk_check();
+         				KickPlayer.online_check();
          			}
         		}
             }
