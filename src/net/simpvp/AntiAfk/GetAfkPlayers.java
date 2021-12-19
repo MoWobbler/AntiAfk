@@ -45,7 +45,7 @@ public abstract class GetAfkPlayers implements Plugin {
                 playerLastLocation.remove(playerToRemove);
             }
             /* Start an afk check for players if tps is lower than the tps set in the config */
-            if (Double.parseDouble(AntiAfk.gettps.getTPS(0)) < AntiAfk.min_tps && !afkPlayers.isEmpty()) {
+            if (AntiAfk.gettps.getTPS()[0] < AntiAfk.min_tps && !afkPlayers.isEmpty()) {
          		Player p;
          		for (Iterator<?> afkListIterator = AntiAfk.instance.getServer().getOnlinePlayers().iterator(); afkListIterator.hasNext();) {
          			p = (Player) afkListIterator.next();
