@@ -1,57 +1,34 @@
 package net.simpvp.AntiAfk;
 
-import java.util.Iterator;
-
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
 
 public class KickPlayer {
-	
+
 	private static long last_request = System.currentTimeMillis();
 
-	public static void online_check() {
+	/* If the player doesn't move within 20 seconds, kick them */
+	public static void online_check(AfkPlayer afkPlayer) {
 		
-		if (System.currentTimeMillis() < (AntiAfk.online_check_seconds * 1000) + last_request) {
+		if (System.currentTimeMillis() < (25000) + last_request) {
 			return;
 		}
-		
-		last_request = System.currentTimeMillis();
 
-		TextComponent msg = new TextComponent("[Announcement] Please verify that you're online by moving ");
-		msg.setColor(ChatColor.AQUA);
-		
-		for (Player p : GetAfkPlayers.afkPlayers) {
-			p.spigot().sendMessage(msg);
-			p.sendTitle(ChatColor.GOLD + "Afk Check", "Please verify that you're online", 10, 550, 20);
-		}
+		last_request = System.currentTimeMillis();
+		Player player = afkPlayer.getPlayer();
+		afkPlayer.setPossibleKickPending(true);
+
+		player.sendMessage(ChatColor.AQUA + "[Announcement] Please verify that you're online by moving ");
+		player.sendTitle(ChatColor.GOLD + "Afk Check", "Please verify that you're online", 10, 550, 20);
 		
 		/* Activate in 20 seconds */
-		final long activate_at = System.currentTimeMillis() + 20 * 1000;
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				if (System.currentTimeMillis() < activate_at) {
-					return;
+		Bukkit.getScheduler().scheduleSyncDelayedTask(AntiAfk.instance, () -> {
+				if (afkPlayer.getIsAfk()) {
+					AntiAfk.instance.getLogger().info(afkPlayer.getPlayer().getDisplayName() + " was kicked for being afk");
+					player.kickPlayer(ChatColor.RED + "Kicked for being afk in low tps");
 				}
-
-				this.cancel();
-				new BukkitRunnable() {
-					@Override
-					public void run() {
-						Player p;
-				 		for (Iterator<?> afkListIterator = AntiAfk.instance.getServer().getOnlinePlayers().iterator(); afkListIterator.hasNext();) {
-				 			p = (Player) afkListIterator.next();
-				 			if (GetAfkPlayers.isAfk(p)) {
-				 				p.kickPlayer(ChatColor.RED + "Kicked for being afk in low tps");
-				 				AntiAfk.instance.getLogger().info(p.getDisplayName() + " was kicked for being afk");
-				 			}
-				 		}
-					}
-				}.runTaskLater(AntiAfk.instance, 0);
-			}
-		}.runTaskTimerAsynchronously(AntiAfk.instance, 20L, 20L);
+		}, 400L);
 	}
 }
