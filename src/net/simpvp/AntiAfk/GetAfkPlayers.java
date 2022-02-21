@@ -1,69 +1,44 @@
 package net.simpvp.AntiAfk;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
-public abstract class GetAfkPlayers implements Plugin {
-	
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+public abstract class GetAfkPlayers {
+
 	/* This class labels players as afk and kicks them if tps is bad */
+    public static HashMap<UUID, AfkPlayer> AfkPlayers = new HashMap<>();
 
-	/* Players are added to playerLastMoveTime when they join or when they do /on */
-	public static Map<Player, Location> playerLastLocation = new HashMap<Player, Location>();
-	public static Map<Player, Long> playerLastMoveTime = new HashMap<Player, Long>();
-	public static ArrayList<Player> afkPlayers = new ArrayList<>();
-	
-	
+
 	/* This tests for afk players */
     public static void setPlayersAfk() {
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, () -> {
-       	
-            for (Map.Entry<Player, Long> entry : playerLastMoveTime.entrySet()) {
-            	
-            	Player p = entry.getKey();
-            	
-            	/* Update map if player has moved*/    	
-            	if (!p.getLocation().equals(playerLastLocation.get(p))) {
-            		playerLastLocation.put(p, p.getLocation());
-            		playerLastMoveTime.put(p, System.currentTimeMillis());
-            		continue;
-            	}
-            	
-            	/* Mark player as afk */
-                if ((System.currentTimeMillis() - entry.getValue()) > AntiAfk.afk_secs * 1000) {
-                    afkPlayers.add(p);
-                }
-            }
-            for (Player playerToRemove : afkPlayers) {
-                playerLastMoveTime.remove(playerToRemove);
-                playerLastLocation.remove(playerToRemove);
-            }
-            /* Start an afk check for players if tps is lower than the tps set in the config */
-            if (AntiAfk.gettps.getTPS()[0] < AntiAfk.min_tps && !afkPlayers.isEmpty()) {
-         		Player p;
-         		for (Iterator<?> afkListIterator = AntiAfk.instance.getServer().getOnlinePlayers().iterator(); afkListIterator.hasNext();) {
-         			p = (Player) afkListIterator.next();
-         			if (GetAfkPlayers.isAfk(p)) {
-         				KickPlayer.online_check();
-         			}
-        		}
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, new Runnable() {
+            @Override
+            public void run() {
+                checkActivity();
             }
         }, 0, AntiAfk.scheduler_seconds * 20);
     }
-    
-    /* return true if player is afk. Used when kicking players in KickPlayer */
-    public static boolean isAfk(Player player) {
-    	if (afkPlayers.contains(player)) {
-    		return true;
-    	}
-    	else {
-    		return false;
-    	}
+
+
+    /* Decide if a player should be labeled as afk and try to kick them */
+    public static void checkActivity() {
+        for (Map.Entry<UUID, AfkPlayer> afkPlayerEntry : AfkPlayers.entrySet()) {
+            AfkPlayer afkPlayer = afkPlayerEntry.getValue();
+
+            /* Mark player as afk */
+            if ((System.currentTimeMillis() - afkPlayer.getLastMoveTime()) > AntiAfk.afk_secs * 1000
+            && !afkPlayer.getPlayer().getLocation().equals(afkPlayer.getLastLocation())) {
+                if (!afkPlayer.getIsAfk()) {
+                    afkPlayer.setIsAfk(true);
+                }
+                /* Start an afk check for players if tps is lower than the tps set in the config */
+                else if (GetTps.getTPS()[0] < AntiAfk.min_tps) {
+                    KickPlayer.online_check(afkPlayer);
+                }
+            }
+        }
     }
 }

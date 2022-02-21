@@ -1,6 +1,12 @@
-Minimum_tps: 15.0
-Afk_seconds: 120
-Online_check_seconds: 180
-Scheduler_check_seconds: 60
+# Only kick players if tps is lower than this
+Minimum_tps: 14
+
+# Wait for a player to be idle for this long before setting them afk
+# Must be more than 20 seconds
+Afk_seconds: 600
+
+# How often to check if a player is afk
+Scheduler_check_seconds: 5
+
+# Kick these players (list of uuids)
 Kick_players: []
-Afk_message: false
