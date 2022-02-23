@@ -19,13 +19,12 @@ public class KickPlayer {
 		last_request = System.currentTimeMillis();
 		Player player = afkPlayer.getPlayer();
 		afkPlayer.setPossibleKickPending(true);
-
-		player.sendMessage(ChatColor.AQUA + "[Announcement] Please verify that you're online by moving ");
+		player.sendMessage(ChatColor.AQUA + "[Announcement] Please verify that you're online by moving or looking around");
 		player.sendTitle(ChatColor.GOLD + "Afk Check", "Please verify that you're online", 10, 550, 20);
 		
 		/* Activate in 20 seconds */
 		Bukkit.getScheduler().scheduleSyncDelayedTask(AntiAfk.instance, () -> {
-				if (afkPlayer.getIsAfk()) {
+				if (afkPlayer != null && afkPlayer.getIsAfk()) {
 					AntiAfk.instance.getLogger().info(afkPlayer.getPlayer().getDisplayName() + " was kicked for being afk");
 					player.kickPlayer(ChatColor.RED + "Kicked for being afk in low tps");
 				}
