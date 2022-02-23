@@ -13,13 +13,13 @@ public abstract class GetAfkPlayers {
 
 
 	/* This tests for afk players */
-    public static void setPlayersAfk() {
+    public static void checkForAfkPlayers() {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, new Runnable() {
             @Override
             public void run() {
                 checkActivity();
             }
-        }, 0, AntiAfk.scheduler_seconds * 20);
+        }, 0, AntiAfk.activityCheckFrequency * 20);
     }
 
 
@@ -29,13 +29,12 @@ public abstract class GetAfkPlayers {
             AfkPlayer afkPlayer = afkPlayerEntry.getValue();
 
             /* Mark player as afk */
-            if ((System.currentTimeMillis() - afkPlayer.getLastMoveTime()) > AntiAfk.afk_secs * 1000
-            && !afkPlayer.getPlayer().getLocation().equals(afkPlayer.getLastLocation())) {
+            if ((System.currentTimeMillis() - afkPlayer.getLastMoveTime()) > AntiAfk.afkSecs * 1000) {
                 if (!afkPlayer.getIsAfk()) {
                     afkPlayer.setIsAfk(true);
                 }
                 /* Start an afk check for players if tps is lower than the tps set in the config */
-                else if (GetTps.getTPS()[0] < AntiAfk.min_tps) {
+                else if (GetTps.getTPS()[0] < AntiAfk.minTps) {
                     KickPlayer.online_check(afkPlayer);
                 }
             }

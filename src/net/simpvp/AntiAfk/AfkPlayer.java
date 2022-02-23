@@ -1,43 +1,31 @@
 package net.simpvp.AntiAfk;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
 public class AfkPlayer {
 
-    private UUID uuid;
-    private Location lastLocation;
+    private final UUID uuid;
     private long lastMoveTime;
     private boolean isAfk;
     private boolean possibleKickPending;
 
+    private float lastPitch;
+    private float lastYaw;
 
-    public AfkPlayer(UUID uuid, Location lastLocation, long lastMoveTime) {
+
+    public AfkPlayer(UUID uuid, long lastMoveTime, float lastPitch, float lastYaw) {
         this.uuid = uuid;
-        this.lastLocation = lastLocation;
         this.lastMoveTime = lastMoveTime;
+        this.lastPitch = lastPitch;
+        this.lastYaw = lastYaw;
         this.isAfk = false;
         this.possibleKickPending = false;
     }
 
-    public void setUUID(UUID uuid) {
-        this.uuid = uuid;
-    }
 
-    public UUID getUUID() {
-        return uuid;
-    }
-
-    public void setLastLocation(Location lastLocation) {
-        this.lastLocation = lastLocation;
-    }
-
-    public Location getLastLocation() {
-        return lastLocation;
-    }
 
     public void setLastMoveTime(long lastMoveTime) {
         this.lastMoveTime = lastMoveTime;
@@ -55,12 +43,20 @@ public class AfkPlayer {
         return isAfk;
     }
 
-    public float getLastYaw() {
-        return lastLocation.getYaw();
+    public float getLastPitch() {
+        return lastPitch;
     }
 
-    public float getLastPitch() {
-        return lastLocation.getPitch();
+    public void setLastPitch(float lastPitch) {
+        this.lastPitch = lastPitch;
+    }
+
+    public float getLastYaw() {
+        return lastYaw;
+    }
+
+    public void setLastYaw(float lastYaw) {
+        this.lastYaw = lastYaw;
     }
 
     public Player getPlayer() {
