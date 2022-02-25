@@ -3,9 +3,3 @@ main: net.simpvp.AntiAfk.AntiAfk
 version: 1
 api-version: 1.14
 commands:
-  checkonline:
-    description: Kick afk players
-  "on":
-    description: Verify that you are not afk
-  "afk":
-    description: Verify that you are not afk
