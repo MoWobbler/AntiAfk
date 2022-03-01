@@ -4,8 +4,5 @@ Minimum_tps: 14
 # How often we try and kick afk players
 Kick_attempt: 600
 
-# How often to check if a player is afk
-Activity_check_frequency: 5
-
 # Kick these players (list of uuids)
 Kick_players: []
