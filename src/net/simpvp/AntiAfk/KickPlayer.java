@@ -4,30 +4,63 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.UUID;
+
 
 public class KickPlayer {
 
 	private static long last_request = System.currentTimeMillis();
+	private static final ArrayList<Player> exemptedPlayers = new ArrayList<>();
+	public static int task;
+
 
 	/* If the player doesn't move within 20 seconds, kick them */
-	public static void online_check(AfkPlayer afkPlayer) {
+	public static void online_check() {
 		
-		if (System.currentTimeMillis() < (25000) + last_request) {
+		if (System.currentTimeMillis() < (AntiAfk.kickAttemptFrequency * 1000) + last_request) {
 			return;
 		}
 
 		last_request = System.currentTimeMillis();
-		Player player = afkPlayer.getPlayer();
-		afkPlayer.setPossibleKickPending(true);
-		player.sendMessage(ChatColor.AQUA + "[Announcement] Please verify that you're online by moving or looking around");
-		player.sendTitle(ChatColor.GOLD + "Afk Check", "Please verify that you're online", 10, 550, 20);
-		
+		exemptedPlayers.clear();
+
+		for (UUID uuid: GetAfkPlayers.playerLocations.keySet()) {
+			Player player = Bukkit.getPlayer(uuid);
+			if (player == null) continue;
+			player.sendMessage(ChatColor.AQUA + "[Announcement] Please verify that you're online by moving or looking around");
+			player.sendTitle(ChatColor.GOLD + "Afk Check", "Please verify that you're online", 10, 550, 20);
+		}
+
 		/* Activate in 20 seconds */
-		Bukkit.getScheduler().scheduleSyncDelayedTask(AntiAfk.instance, () -> {
-				if (afkPlayer != null && afkPlayer.getIsAfk()) {
-					AntiAfk.instance.getLogger().info(afkPlayer.getPlayer().getDisplayName() + " was kicked for being afk");
-					player.kickPlayer(ChatColor.RED + "Kicked for being afk in low tps");
+		task = Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, new Runnable() {
+
+			@Override
+			public void run() {
+				for (UUID uuid: GetAfkPlayers.playerLocations.keySet()) {
+					Player player = Bukkit.getPlayer(uuid);
+					AntiAfk.instance.getLogger().info("Kick check");
+
+					if (player == null) continue;
+
+
+					if (!(GetAfkPlayers.isPlayerAfk(GetAfkPlayers.playerLocations.get(player.getUniqueId()), player)) && !exemptedPlayers.contains(player)) {
+						GetAfkPlayers.playerLocations.replace(player.getUniqueId(), player.getLocation());
+						player.resetTitle();
+						player.sendMessage(ChatColor.GREEN + "You're no longer afk");
+						exemptedPlayers.add(player);
+						continue;
+					}
+
+					if (System.currentTimeMillis() > last_request + 20000) {
+						AntiAfk.instance.getLogger().info(player.getDisplayName() + " was kicked for being afk");
+						if (!exemptedPlayers.contains(player)) {
+							player.kickPlayer(ChatColor.RED + "Kicked for being afk in low tps");
+						}
+						Bukkit.getScheduler().cancelTask(task);
+					}
 				}
-		}, 400L);
+			}
+		}, 20, 20);
 	}
 }

@@ -1,6 +1,9 @@
 package net.simpvp.AntiAfk;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,36 +11,113 @@ import java.util.UUID;
 
 public abstract class GetAfkPlayers {
 
-	/* This class labels players as afk and kicks them if tps is bad */
-    public static HashMap<UUID, AfkPlayer> AfkPlayers = new HashMap<>();
+    static HashMap<UUID, Location> playerLocations = new HashMap<>();
+    static int playerActivityTask;
+    static boolean createTask = true;
 
 
-	/* This tests for afk players */
-    public static void checkForAfkPlayers() {
+    /* Check for low tps every 60 seconds */
+    public static void checkForLowTps() {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, new Runnable() {
             @Override
             public void run() {
-                checkActivity();
+                AntiAfk.instance.getLogger().info("Checking tps");
+                if (GetTps.getTPS()[0] < AntiAfk.minTps && createTask) {
+
+
+
+                    AntiAfk.instance.getLogger().info("Low tps detected, looking for afk players");
+                    checkActivityScheduler();
+                    createTask = false;
+                }
+
+                else if (GetTps.getTPS()[0] > AntiAfk.minTps && Bukkit.getScheduler().isCurrentlyRunning(playerActivityTask)) {
+                    AntiAfk.instance.getLogger().info("Tps isn't low anymore. No longer looking for afk players");
+                    createTask = true;
+                    Bukkit.getScheduler().cancelTask(playerActivityTask);
+                }
+
             }
-        }, 0, AntiAfk.activityCheckFrequency * 20);
+        }, 600, 600);
     }
 
 
-    /* Decide if a player should be labeled as afk and try to kick them */
-    public static void checkActivity() {
-        for (Map.Entry<UUID, AfkPlayer> afkPlayerEntry : AfkPlayers.entrySet()) {
-            AfkPlayer afkPlayer = afkPlayerEntry.getValue();
+        /* Run the checkPlayerActivity function */
+        public static void checkActivityScheduler () {
 
-            /* Mark player as afk */
-            if ((System.currentTimeMillis() - afkPlayer.getLastMoveTime()) > AntiAfk.afkSecs * 1000) {
-                if (!afkPlayer.getIsAfk()) {
-                    afkPlayer.setIsAfk(true);
+            /* Check for player activity */
+            playerActivityTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, new Runnable() {
+                @Override
+                public void run() {
+                    AntiAfk.instance.getLogger().info("For loop player activity");
+                    checkPlayerActivity();
+                    if (GetTps.getTPS()[0] > AntiAfk.minTps) {
+                        Bukkit.getScheduler().cancelTask(playerActivityTask);
+                        createTask = true;
+                    }
                 }
-                /* Start an afk check for players if tps is lower than the tps set in the config */
-                else if (GetTps.getTPS()[0] < AntiAfk.minTps) {
-                    KickPlayer.online_check(afkPlayer);
+            }, 0, 100);
+        }
+
+
+        /* Check if players are afk and try to kick them */
+        public static void checkPlayerActivity () {
+            storePlayerLocations();
+            for (Map.Entry<UUID, Location> afkPlayer : playerLocations.entrySet()) {
+
+                Player player = Bukkit.getPlayer(afkPlayer.getKey());
+                Location location = afkPlayer.getValue();
+
+                if (player == null) {
+                    continue;
+                }
+
+                if (isPlayerAfk(location, player) && !Bukkit.getScheduler().isCurrentlyRunning(KickPlayer.task)) {
+                    KickPlayer.online_check();
+                    continue;
+                }
+                playerLocations.replace(player.getUniqueId(), player.getLocation());
+            }
+        }
+
+
+        /* Only store locations for players we want to kick */
+        public static void storePlayerLocations () {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (AntiAfk.kick_players.contains(player.getUniqueId())) {
+                    if (!playerLocations.containsKey(player.getUniqueId())) {
+                        playerLocations.put(player.getUniqueId(), player.getLocation());
+                    }
                 }
             }
         }
-    }
+
+
+        /* Return true if a player is attempting to avoid afk detection */
+        public static boolean playerInAfkMachine (Player player){
+            Location lastLocation = playerLocations.get(player.getUniqueId());
+            if (player.getLocation().getBlock().getType().equals(Material.WATER)) return true;
+            if (player.getLocation().add(0, 1, 0).getBlock().getType().equals(Material.WATER)) return true;
+            if (player.getLocation().getPitch() == lastLocation.getPitch()) return true;
+            if (player.getLocation().getYaw() == lastLocation.getYaw()) return true;
+            return false;
+        }
+
+
+        /* Return true if a player is afk */
+        public static boolean isPlayerAfk (Location location, Player player) {
+            if (location.equals(player.getLocation())) {
+                AntiAfk.instance.getLogger().info(player.getDisplayName() + " is afk");
+                return true;
+            }
+
+            if (playerInAfkMachine(player)) {
+                AntiAfk.instance.getLogger().info(player.getDisplayName() + " is afk (afk machine)");
+                return true;
+            }
+            return false;
+        }
+
+
+
 }
