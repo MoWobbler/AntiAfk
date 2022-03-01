@@ -11,7 +11,7 @@ import java.util.UUID;
 public class KickPlayer {
 
 	private static long last_request = System.currentTimeMillis();
-	private static final ArrayList<Player> exemptedPlayers = new ArrayList<>();
+	private static final ArrayList<Player> exemptPlayers = new ArrayList<>();
 	public static int task;
 
 
@@ -23,12 +23,17 @@ public class KickPlayer {
 		}
 
 		last_request = System.currentTimeMillis();
-		exemptedPlayers.clear();
+		exemptPlayers.clear();
 
+		/* Tell afk players to move */
 		for (UUID uuid: GetAfkPlayers.playerLocations.keySet()) {
 			Player player = Bukkit.getPlayer(uuid);
 			if (player == null) continue;
-			player.sendMessage(ChatColor.AQUA + "[Announcement] Please verify that you're online by moving or looking around");
+			if (!(GetAfkPlayers.isPlayerAfk(GetAfkPlayers.playerLocations.get(player.getUniqueId()), player))) {
+				exemptPlayers.add(player);
+				continue;
+			}
+			player.sendMessage(ChatColor.AQUA + "[Announcement] Please verify that you're online by moving and looking around");
 			player.sendTitle(ChatColor.GOLD + "Afk Check", "Please verify that you're online", 10, 550, 20);
 		}
 
@@ -39,23 +44,22 @@ public class KickPlayer {
 			public void run() {
 				for (UUID uuid: GetAfkPlayers.playerLocations.keySet()) {
 					Player player = Bukkit.getPlayer(uuid);
-					AntiAfk.instance.getLogger().info("Kick check");
 
 					if (player == null) continue;
 
 
-					if (!(GetAfkPlayers.isPlayerAfk(GetAfkPlayers.playerLocations.get(player.getUniqueId()), player)) && !exemptedPlayers.contains(player)) {
+					if (!(GetAfkPlayers.isPlayerAfk(GetAfkPlayers.playerLocations.get(player.getUniqueId()), player)) && !exemptPlayers.contains(player)) {
 						GetAfkPlayers.playerLocations.replace(player.getUniqueId(), player.getLocation());
 						player.resetTitle();
 						player.sendMessage(ChatColor.GREEN + "You're no longer afk");
-						exemptedPlayers.add(player);
+						exemptPlayers.add(player);
 						continue;
 					}
 
 					if (System.currentTimeMillis() > last_request + 20000) {
-						AntiAfk.instance.getLogger().info(player.getDisplayName() + " was kicked for being afk");
-						if (!exemptedPlayers.contains(player)) {
+						if (!exemptPlayers.contains(player)) {
 							player.kickPlayer(ChatColor.RED + "Kicked for being afk in low tps");
+							AntiAfk.instance.getLogger().info(player.getDisplayName() + " was kicked for being afk");
 						}
 						Bukkit.getScheduler().cancelTask(task);
 					}

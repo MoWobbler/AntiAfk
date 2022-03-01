@@ -21,7 +21,6 @@ public abstract class GetAfkPlayers {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, new Runnable() {
             @Override
             public void run() {
-                AntiAfk.instance.getLogger().info("Checking tps");
                 if (GetTps.getTPS()[0] < AntiAfk.minTps && createTask) {
 
 
@@ -49,14 +48,13 @@ public abstract class GetAfkPlayers {
             playerActivityTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, new Runnable() {
                 @Override
                 public void run() {
-                    AntiAfk.instance.getLogger().info("For loop player activity");
                     checkPlayerActivity();
                     if (GetTps.getTPS()[0] > AntiAfk.minTps) {
                         Bukkit.getScheduler().cancelTask(playerActivityTask);
                         createTask = true;
                     }
                 }
-            }, 0, 100);
+            }, 200, 200);
         }
 
 
@@ -107,12 +105,10 @@ public abstract class GetAfkPlayers {
         /* Return true if a player is afk */
         public static boolean isPlayerAfk (Location location, Player player) {
             if (location.equals(player.getLocation())) {
-                AntiAfk.instance.getLogger().info(player.getDisplayName() + " is afk");
                 return true;
             }
 
             if (playerInAfkMachine(player)) {
-                AntiAfk.instance.getLogger().info(player.getDisplayName() + " is afk (afk machine)");
                 return true;
             }
             return false;

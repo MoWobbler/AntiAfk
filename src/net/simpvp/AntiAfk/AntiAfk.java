@@ -11,7 +11,6 @@ public class AntiAfk extends JavaPlugin {
 
 	static Double minTps;
 	static Integer kickAttemptFrequency;
-	static Integer activityCheckFrequency;
 	static List<?> kick_players;
 
 
@@ -21,7 +20,6 @@ public class AntiAfk extends JavaPlugin {
 		instance = this;
 		minTps = AntiAfk.instance.getConfig().getDouble("Minimum_tps");
 		kickAttemptFrequency = AntiAfk.instance.getConfig().getInt("Kick_attempt");
-		activityCheckFrequency = AntiAfk.instance.getConfig().getInt("Activity_Check_Frequency");
 		kick_players = AntiAfk.instance.getConfig().getStringList("Kick_players").stream().map(UUID::fromString).collect(java.util.stream.Collectors.toList());
 		GetAfkPlayers.checkForLowTps();
 	}
