@@ -47,25 +47,39 @@ public abstract class GetAfkPlayers {
             }, 200, 200);
         }
 
-
         /* Check if players are afk and try to kick them */
         public static void checkPlayerActivity () {
             storePlayerLocations();
+
+
+            if (Bukkit.getScheduler().isCurrentlyRunning(KickPlayer.task)) {
+                return;
+            }
+
             for (Map.Entry<UUID, Location> afkPlayer : playerLocations.entrySet()) {
 
                 Player player = Bukkit.getPlayer(afkPlayer.getKey());
-                Location location = afkPlayer.getValue();
 
                 if (player == null) {
                     continue;
                 }
 
-                if (isPlayerAfk(location, player) && !Bukkit.getScheduler().isCurrentlyRunning(KickPlayer.task)) {
+                if (isPlayerAfk(player) && !Bukkit.getScheduler().isCurrentlyRunning(KickPlayer.task)) {
                     KickPlayer.online_check();
+                    return;
+                }
+            }
+
+            for (Map.Entry<UUID, Location> afkPlayer : playerLocations.entrySet()) {
+
+                Player player = Bukkit.getPlayer(afkPlayer.getKey());
+
+                if (player == null) {
                     continue;
                 }
                 playerLocations.replace(player.getUniqueId(), player.getLocation());
             }
+
         }
 
 
@@ -74,7 +88,7 @@ public abstract class GetAfkPlayers {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (AntiAfk.kick_players.contains(player.getUniqueId())) {
                     if (!playerLocations.containsKey(player.getUniqueId())) {
-                        playerLocations.put(player.getUniqueId(), player.getLocation());
+                        playerLocations.replace(player.getUniqueId(), player.getLocation());
                     }
                 }
             }
@@ -93,8 +107,8 @@ public abstract class GetAfkPlayers {
 
 
         /* Return true if a player is afk */
-        public static boolean isPlayerAfk (Location location, Player player) {
-            if (location.equals(player.getLocation())) {
+        public static boolean isPlayerAfk (Player player) {
+            if (playerLocations.get(player.getUniqueId()).equals(player.getLocation())) {
                 return true;
             }
 
