@@ -22,20 +22,10 @@ public abstract class GetAfkPlayers {
             @Override
             public void run() {
                 if (GetTps.getTPS()[0] < AntiAfk.minTps && createTask) {
-
-
-
                     AntiAfk.instance.getLogger().info("Low tps detected, looking for afk players");
                     checkActivityScheduler();
                     createTask = false;
                 }
-
-                else if (GetTps.getTPS()[0] > AntiAfk.minTps && Bukkit.getScheduler().isCurrentlyRunning(playerActivityTask)) {
-                    AntiAfk.instance.getLogger().info("Tps isn't low anymore. No longer looking for afk players");
-                    createTask = true;
-                    Bukkit.getScheduler().cancelTask(playerActivityTask);
-                }
-
             }
         }, 600, 600);
     }
@@ -43,7 +33,6 @@ public abstract class GetAfkPlayers {
 
         /* Run the checkPlayerActivity function */
         public static void checkActivityScheduler () {
-
             /* Check for player activity */
             playerActivityTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, new Runnable() {
                 @Override
@@ -51,6 +40,7 @@ public abstract class GetAfkPlayers {
                     checkPlayerActivity();
                     if (GetTps.getTPS()[0] > AntiAfk.minTps) {
                         Bukkit.getScheduler().cancelTask(playerActivityTask);
+                        AntiAfk.instance.getLogger().info("Tps isn't low anymore. No longer looking for afk players");
                         createTask = true;
                     }
                 }
