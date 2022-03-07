@@ -32,6 +32,8 @@ public class KickPlayer {
 			Player player = Bukkit.getPlayer(afkPlayer.getKey());
 			if (player == null) continue;
 
+
+
 			if (!(GetAfkPlayers.isPlayerAfk(player))) {
 				exemptPlayers.add(player);
 				continue;

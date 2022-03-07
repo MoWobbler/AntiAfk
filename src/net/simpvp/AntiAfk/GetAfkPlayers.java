@@ -12,6 +12,7 @@ import java.util.UUID;
 public abstract class GetAfkPlayers {
 
     static HashMap<UUID, Location> playerLocations = new HashMap<>();
+    static HashMap<UUID, Long> lastMoveTime = new HashMap<>();
     static int playerActivityTask;
     static boolean createTask = true;
 
@@ -77,7 +78,10 @@ public abstract class GetAfkPlayers {
                 if (player == null) {
                     continue;
                 }
+
+
                 playerLocations.replace(player.getUniqueId(), player.getLocation());
+                lastMoveTime.replace(player.getUniqueId(), System.currentTimeMillis());
             }
 
         }
@@ -88,7 +92,8 @@ public abstract class GetAfkPlayers {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (AntiAfk.kick_players.contains(player.getUniqueId())) {
                     if (!playerLocations.containsKey(player.getUniqueId())) {
-                        playerLocations.replace(player.getUniqueId(), player.getLocation());
+                        playerLocations.put(player.getUniqueId(), player.getLocation());
+                        lastMoveTime.put(player.getUniqueId(), System.currentTimeMillis());
                     }
                 }
             }
