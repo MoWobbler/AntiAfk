@@ -17,7 +17,7 @@ public class GetTps {
             tps.setAccessible(true);
             return (double[]) tps.get(server);
         } catch (IllegalAccessException | NoSuchFieldException ignored) {
-
+            AntiAfk.instance.getLogger().info("Error while getting tps");
         }
         return new double[]{20, 20, 20};
     }
