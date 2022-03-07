@@ -44,7 +44,7 @@ public abstract class GetAfkPlayers {
                         createTask = true;
                     }
                 }
-            }, 1200, 1200);
+            }, 200, 200);
         }
 
 
