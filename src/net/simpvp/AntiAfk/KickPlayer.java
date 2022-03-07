@@ -2,9 +2,11 @@ package net.simpvp.AntiAfk;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -26,10 +28,11 @@ public class KickPlayer {
 		exemptPlayers.clear();
 
 		/* Tell afk players to move */
-		for (UUID uuid: GetAfkPlayers.playerLocations.keySet()) {
-			Player player = Bukkit.getPlayer(uuid);
+		for (Map.Entry<UUID, Location> afkPlayer : GetAfkPlayers.playerLocations.entrySet()) {
+			Player player = Bukkit.getPlayer(afkPlayer.getKey());
 			if (player == null) continue;
-			if (!(GetAfkPlayers.isPlayerAfk(GetAfkPlayers.playerLocations.get(player.getUniqueId()), player))) {
+
+			if (!(GetAfkPlayers.isPlayerAfk(player))) {
 				exemptPlayers.add(player);
 				continue;
 			}
@@ -42,14 +45,14 @@ public class KickPlayer {
 
 			@Override
 			public void run() {
-				for (UUID uuid: GetAfkPlayers.playerLocations.keySet()) {
-					Player player = Bukkit.getPlayer(uuid);
+				for (Map.Entry<UUID, Location> afkPlayer : GetAfkPlayers.playerLocations.entrySet()) {
+					Player player = Bukkit.getPlayer(afkPlayer.getKey());
 
 					if (player == null) continue;
 
 
-					if (!(GetAfkPlayers.isPlayerAfk(GetAfkPlayers.playerLocations.get(player.getUniqueId()), player)) && !exemptPlayers.contains(player)) {
-						GetAfkPlayers.playerLocations.replace(player.getUniqueId(), player.getLocation());
+					if (!(GetAfkPlayers.isPlayerAfk(player)) && !exemptPlayers.contains(player)) {
+						GetAfkPlayers.playerLocations.put(player.getUniqueId(), player.getLocation());
 						player.resetTitle();
 						player.sendMessage(ChatColor.GREEN + "You're no longer afk");
 						exemptPlayers.add(player);
