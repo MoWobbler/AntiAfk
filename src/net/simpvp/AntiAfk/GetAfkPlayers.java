@@ -77,6 +77,8 @@ public abstract class GetAfkPlayers {
                 if (player == null) {
                     continue;
                 }
+
+
                 playerLocations.replace(player.getUniqueId(), player.getLocation());
             }
 
@@ -88,7 +90,7 @@ public abstract class GetAfkPlayers {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (AntiAfk.kick_players.contains(player.getUniqueId())) {
                     if (!playerLocations.containsKey(player.getUniqueId())) {
-                        playerLocations.replace(player.getUniqueId(), player.getLocation());
+                        playerLocations.put(player.getUniqueId(), player.getLocation());
                     }
                 }
             }
