@@ -52,7 +52,7 @@ public class KickPlayer {
 
 
 					if (!(GetAfkPlayers.isPlayerAfk(player)) && !exemptPlayers.contains(player)) {
-						GetAfkPlayers.playerLocations.put(player.getUniqueId(), player.getLocation());
+						GetAfkPlayers.playerLocations.replace(player.getUniqueId(), player.getLocation());
 						player.resetTitle();
 						player.sendMessage(ChatColor.GREEN + "You're no longer afk");
 						exemptPlayers.add(player);
