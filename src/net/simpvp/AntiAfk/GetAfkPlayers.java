@@ -2,7 +2,6 @@ package net.simpvp.AntiAfk;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -12,6 +11,7 @@ import java.util.UUID;
 public abstract class GetAfkPlayers {
 
     static HashMap<UUID, Location> playerLocations = new HashMap<>();
+    static HashMap<UUID, Integer> playerTimes = new HashMap<>();
     static int playerActivityTask;
     static boolean createTask = true;
 
@@ -51,7 +51,6 @@ public abstract class GetAfkPlayers {
         public static void checkPlayerActivity () {
             storePlayerLocations();
 
-
             if (Bukkit.getScheduler().isCurrentlyRunning(KickPlayer.task)) {
                 return;
             }
@@ -64,7 +63,16 @@ public abstract class GetAfkPlayers {
                     continue;
                 }
 
-                if (isPlayerAfk(player) && !Bukkit.getScheduler().isCurrentlyRunning(KickPlayer.task)) {
+                if (!playerHasNotMoved(player)) {
+                    playerTimes.replace(player.getUniqueId(), 0);
+                }
+
+
+                if (playerHasNotMoved(player) && player.isOnline()) {
+                    playerTimes.replace(player.getUniqueId(), playerTimes.get(player.getUniqueId()) + 1);
+                }
+
+                if (playerTimes.get(player.getUniqueId()) > 5 && !Bukkit.getScheduler().isCurrentlyRunning(KickPlayer.task)) {
                     KickPlayer.online_check();
                     return;
                 }
@@ -77,8 +85,6 @@ public abstract class GetAfkPlayers {
                 if (player == null) {
                     continue;
                 }
-
-
                 playerLocations.replace(player.getUniqueId(), player.getLocation());
             }
 
@@ -91,35 +97,18 @@ public abstract class GetAfkPlayers {
                 if (AntiAfk.kick_players.contains(player.getUniqueId())) {
                     if (!playerLocations.containsKey(player.getUniqueId())) {
                         playerLocations.put(player.getUniqueId(), player.getLocation());
+                        playerTimes.put(player.getUniqueId(), 0);
                     }
                 }
             }
         }
 
 
-        /* Return true if a player is attempting to avoid afk detection */
-        public static boolean playerInAfkMachine (Player player){
+        /* Return true if a player is afk */
+        public static boolean playerHasNotMoved (Player player) {
             Location lastLocation = playerLocations.get(player.getUniqueId());
-            if (player.getLocation().getBlock().getType().equals(Material.WATER)) return true;
-            if (player.getLocation().add(0, 1, 0).getBlock().getType().equals(Material.WATER)) return true;
             if (player.getLocation().getPitch() == lastLocation.getPitch()) return true;
             if (player.getLocation().getYaw() == lastLocation.getYaw()) return true;
-            return false;
+            return lastLocation.equals(player.getLocation());
         }
-
-
-        /* Return true if a player is afk */
-        public static boolean isPlayerAfk (Player player) {
-            if (playerLocations.get(player.getUniqueId()).equals(player.getLocation())) {
-                return true;
-            }
-
-            if (playerInAfkMachine(player)) {
-                return true;
-            }
-            return false;
-        }
-
-
-
 }

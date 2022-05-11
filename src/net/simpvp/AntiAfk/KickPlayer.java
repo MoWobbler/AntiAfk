@@ -34,7 +34,7 @@ public class KickPlayer {
 
 
 
-			if (!(GetAfkPlayers.isPlayerAfk(player))) {
+			if (!(GetAfkPlayers.playerTimes.get(player.getUniqueId()) > 5)) {
 				exemptPlayers.add(player);
 				continue;
 			}
@@ -53,10 +53,11 @@ public class KickPlayer {
 					if (player == null) continue;
 
 
-					if (!(GetAfkPlayers.isPlayerAfk(player)) && !exemptPlayers.contains(player)) {
+					if (!(GetAfkPlayers.playerHasNotMoved(player)) && !exemptPlayers.contains(player)) {
 						GetAfkPlayers.playerLocations.replace(player.getUniqueId(), player.getLocation());
 						player.resetTitle();
 						player.sendMessage(ChatColor.GREEN + "You're no longer afk");
+						GetAfkPlayers.playerTimes.replace(player.getUniqueId(), 0);
 						exemptPlayers.add(player);
 						continue;
 					}
@@ -65,6 +66,7 @@ public class KickPlayer {
 						if (!exemptPlayers.contains(player)) {
 							player.kickPlayer(ChatColor.RED + "Kicked for being afk in low tps");
 							AntiAfk.instance.getLogger().info(player.getDisplayName() + " was kicked for being afk");
+							GetAfkPlayers.playerTimes.replace(player.getUniqueId(), 0);
 						}
 						Bukkit.getScheduler().cancelTask(task);
 					}
