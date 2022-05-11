@@ -5,10 +5,14 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public abstract class GetAfkPlayers {
+
+    static List<String> kick_players;
+    static Double minTps;
 
     static HashMap<UUID, Location> playerLocations = new HashMap<>();
     static HashMap<UUID, Integer> playerTimes = new HashMap<>();
@@ -18,14 +22,11 @@ public abstract class GetAfkPlayers {
 
     /* Check for low tps every 60 seconds */
     public static void checkForLowTps() {
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, new Runnable() {
-            @Override
-            public void run() {
-                if (GetTps.getTPS()[0] < AntiAfk.minTps && createTask) {
-                    AntiAfk.instance.getLogger().info("Low tps detected, looking for afk players");
-                    checkActivityScheduler();
-                    createTask = false;
-                }
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, () -> {
+            if (GetTps.getTPS()[0] < minTps && createTask) {
+                AntiAfk.instance.getLogger().info("Low tps detected, looking for afk players");
+                checkActivityScheduler();
+                createTask = false;
             }
         }, 600, 600);
     }
@@ -33,16 +34,12 @@ public abstract class GetAfkPlayers {
 
         /* Run the checkPlayerActivity function */
         public static void checkActivityScheduler () {
-            /* Check for player activity */
-            playerActivityTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, new Runnable() {
-                @Override
-                public void run() {
-                    checkPlayerActivity();
-                    if (GetTps.getTPS()[0] > AntiAfk.minTps) {
-                        Bukkit.getScheduler().cancelTask(playerActivityTask);
-                        AntiAfk.instance.getLogger().info("Tps isn't low anymore. No longer looking for afk players");
-                        createTask = true;
-                    }
+            playerActivityTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, () -> {
+                checkPlayerActivity();
+                if (GetTps.getTPS()[0] > minTps) {
+                    Bukkit.getScheduler().cancelTask(playerActivityTask);
+                    AntiAfk.instance.getLogger().info("Tps isn't low anymore. No longer looking for afk players");
+                    createTask = true;
                 }
             }, 200, 200);
         }
@@ -76,25 +73,17 @@ public abstract class GetAfkPlayers {
                     KickPlayer.online_check();
                     return;
                 }
-            }
 
-            for (Map.Entry<UUID, Location> afkPlayer : playerLocations.entrySet()) {
-
-                Player player = Bukkit.getPlayer(afkPlayer.getKey());
-
-                if (player == null) {
-                    continue;
-                }
                 playerLocations.replace(player.getUniqueId(), player.getLocation());
-            }
 
+            }
         }
 
 
         /* Only store locations for players we want to kick */
         public static void storePlayerLocations () {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                if (AntiAfk.kick_players.contains(player.getUniqueId())) {
+                if (kick_players.contains(player.getUniqueId().toString())) {
                     if (!playerLocations.containsKey(player.getUniqueId())) {
                         playerLocations.put(player.getUniqueId(), player.getLocation());
                         playerTimes.put(player.getUniqueId(), 0);

@@ -12,15 +12,16 @@ import java.util.UUID;
 
 public class KickPlayer {
 
+	static Integer kickAttemptFrequency;
 	private static long last_request = System.currentTimeMillis();
-	private static final ArrayList<Player> exemptPlayers = new ArrayList<>();
+	static final ArrayList<Player> exemptPlayers = new ArrayList<>();
 	public static int task;
 
 
 	/* If the player doesn't move within 20 seconds, kick them */
 	public static void online_check() {
 		
-		if (System.currentTimeMillis() < (AntiAfk.kickAttemptFrequency * 1000) + last_request) {
+		if (System.currentTimeMillis() < (kickAttemptFrequency * 1000) + last_request) {
 			return;
 		}
 
@@ -42,34 +43,30 @@ public class KickPlayer {
 			player.sendTitle(ChatColor.GOLD + "Afk Check", "Please verify that you're online", 10, 550, 20);
 		}
 
-		/* Activate in 20 seconds */
-		task = Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, new Runnable() {
+		/* Activate in 20ish seconds */
+		task = Bukkit.getScheduler().scheduleSyncRepeatingTask(AntiAfk.instance, () -> {
+			for (Map.Entry<UUID, Location> afkPlayer : GetAfkPlayers.playerLocations.entrySet()) {
+				Player player = Bukkit.getPlayer(afkPlayer.getKey());
 
-			@Override
-			public void run() {
-				for (Map.Entry<UUID, Location> afkPlayer : GetAfkPlayers.playerLocations.entrySet()) {
-					Player player = Bukkit.getPlayer(afkPlayer.getKey());
-
-					if (player == null) continue;
+				if (player == null) continue;
 
 
-					if (!(GetAfkPlayers.playerHasNotMoved(player)) && !exemptPlayers.contains(player)) {
-						GetAfkPlayers.playerLocations.replace(player.getUniqueId(), player.getLocation());
-						player.resetTitle();
-						player.sendMessage(ChatColor.GREEN + "You're no longer afk");
+				if (!(GetAfkPlayers.playerHasNotMoved(player)) && !exemptPlayers.contains(player)) {
+					GetAfkPlayers.playerLocations.replace(player.getUniqueId(), player.getLocation());
+					player.resetTitle();
+					player.sendMessage(ChatColor.GREEN + "You're no longer afk");
+					GetAfkPlayers.playerTimes.replace(player.getUniqueId(), 0);
+					exemptPlayers.add(player);
+					continue;
+				}
+
+				if (System.currentTimeMillis() > last_request + 20000) {
+					if (GetAfkPlayers.playerTimes.get(player.getUniqueId()) > 5 && !exemptPlayers.contains(player)) {
+						player.kickPlayer(ChatColor.RED + "Kicked for being afk in low tps");
+						AntiAfk.instance.getLogger().info(player.getDisplayName() + " was kicked for being afk");
 						GetAfkPlayers.playerTimes.replace(player.getUniqueId(), 0);
-						exemptPlayers.add(player);
-						continue;
 					}
-
-					if (System.currentTimeMillis() > last_request + 20000) {
-						if (!exemptPlayers.contains(player)) {
-							player.kickPlayer(ChatColor.RED + "Kicked for being afk in low tps");
-							AntiAfk.instance.getLogger().info(player.getDisplayName() + " was kicked for being afk");
-							GetAfkPlayers.playerTimes.replace(player.getUniqueId(), 0);
-						}
-						Bukkit.getScheduler().cancelTask(task);
-					}
+					Bukkit.getScheduler().cancelTask(task);
 				}
 			}
 		}, 20, 20);
