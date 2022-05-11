@@ -78,7 +78,7 @@ public class AntiAfkCommand implements CommandExecutor {
         UUID uuid = afker.getUniqueId();
 
         if (!GetAfkPlayers.kick_players.contains(uuid.toString())) {
-            sender.sendMessage(ChatColor.RED + "This player is not in the afk list!");
+            sender.sendMessage(ChatColor.RED + afker.getDisplayName() + " is not in the afk list!");
             return;
         }
 
