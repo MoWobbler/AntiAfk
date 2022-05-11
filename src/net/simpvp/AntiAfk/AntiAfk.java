@@ -2,8 +2,6 @@ package net.simpvp.AntiAfk;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.UUID;
-
 public class AntiAfk extends JavaPlugin {
 	
 	public static JavaPlugin instance;
